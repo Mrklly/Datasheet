@@ -1,0 +1,126 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\eeprom.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4A4E.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\eeprom.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\eeprom.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\eeprom.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\eeprom.c
+      1          #include "stm8s.h"
+      2          #include "eeprom.h"
+      3          #include "delay.h"
+      4          
+      5          void FlashUNLock(void)//FLASH解锁
+      6          {
+      7            do
+      8            {
+      9              FLASH->DUKR = 0XAE;            // 写入第一个密钥
+     10              FLASH->DUKR = 0X56;            // 写入第二个密钥
+     11            }while((FLASH->IAPSR & 0x08)==0);//等待解密成功
+     12            delay_ms(50);//没有加延时会导致前几个数据写入失败，一直不知道为什么
+     13          }
+     14          
+     15          void FlashLock(void)//FLASH加锁
+     16          {
+     17            FLASH->IAPSR &= 0XFD;//加锁
+     18          }
+     19          
+     20          /********************************************************************************************************
+     21          *  Function: EEPWrite				                                                           
+     22          *  Object: 写EEPROM
+     23          *  输入： 头地址(0~1535)  数据指针  数据长
+     24          *  输出： 无 	                                     
+     25          *  备注: 1.5K EEPROM  不能超过
+     26          ********************************************************************************************************/
+     27          void EEPWrite(u16 Adr, u8 *pData, u16 Len)
+     28          {
+     29            u8 *p;
+     30            p = (u8*)(0x4000 + Adr);   //p指针指向EEPROM 对应的单元
+     31            for( ; Len > 0; Len--)//写数据
+     32            {
+     33              *p++ = *pData++;
+     34              while(!(FLASH->IAPSR&0X04)); //等待写完成
+     35            } 
+     36          }
+     37          
+     38          /********************************************************************************************************
+     39          *  Function: EEPRead				                                                           
+     40          *  Object: 读EEPROM
+     41          *  输入： 头地址(0~1535) 数据存放指针 数据长
+     42          *  输出： 无 	                                     
+     43          *  备注: 1.5K EEPROM
+     44          ********************************************************************************************************/
+     45          void EEPRead(u16 Adr, u8 *pData, u16 Len)
+     46          {
+     47            u8 *p;
+     48            
+     49            p = (u8*)0x4000 + Adr; //p指针指向EEPROM 对应的单元
+     50            for( ; Len > 0; Len--)//读数据
+     51            *pData++ = *p++;
+     52          }
+     53          
+     54          
+     55          void EEPWriteBit(u16 Adr,u8 dat)//写入 一个字节
+     56          {
+     57            u8 *p;
+     58            p = (u8*)(0x4000 + Adr);   //p指针指向EEPROM 对应的单元
+     59            *p++ = dat;
+     60            while(!(FLASH->IAPSR&0X04)); //等待写完成
+     61          }
+     62          
+     63          void EEPReadBit(u16 Adr, u8 *pData)//读一个字节
+     64          {
+     65            u8 *p;
+     66            
+     67            p = (u8*)0x4000 + Adr; //p指针指向EEPROM 对应的单元
+     68            *pData = *p;
+     69          }
+     70          
+     71          
+     72          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      33  EEPRead
+       7  EEPReadBit
+      38  EEPWrite
+      11  EEPWriteBit
+       5  FlashLock
+      24  FlashUNLock
+
+ 
+ 118 bytes in section .near_func.text
+ 
+ 118 bytes of CODE memory
+
+Errors: none
+Warnings: none

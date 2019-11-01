@@ -1,0 +1,66 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:35
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\beep.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW48B5.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\beep.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\beep.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\beep.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\beep.c
+      1          #include "stm8s.h"
+      2          #include "beep.h"
+      3          
+      4          void Beep_Init(void)
+      5          {
+      6            FLASH->DUKR = 0xAE;
+      7            FLASH->DUKR = 0x56;//输入2个密钥解锁FLASH
+      8            while(!(FLASH->IAPSR & 0x08));//等待解密成功
+      9            FLASH->CR2 |= 0x80;//OPT=1，写操作使能
+     10            FLASH->NCR2 &= 0x7f;//NOPT=0，对选项字节进行写操作被使能
+     11            *((unsigned char *)0x4803) |= 0x80;//AFR7=1;
+     12            *((unsigned char *)0x4804) &= 0x7f;//NAFR7=0;参考STM8S2XXX中文资料33页
+     13          }
+     14          
+     15          
+     16          
+     17          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      30  Beep_Init
+
+ 
+ 30 bytes in section .near_func.text
+ 
+ 30 bytes of CODE memory
+
+Errors: none
+Warnings: none

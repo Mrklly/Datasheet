@@ -1,0 +1,203 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\I2C.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4B1B.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\I2C.c" -e
+#        -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\I2C.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\I2C.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\I2C.c
+      1          #include "stm8s.h"
+      2          #include "I2C.h"
+      3          #include "delay.h"
+      4          
+      5          
+      6          void I2C_Init(void)
+      7          {
+      8            CLK->PCKENR1 |= 0X01;//开I2C时钟
+      9            I2C->CCRH &= ~0X80;//I2C模式选择 标准模式
+     10            I2C->FREQR = 0x02;//设置输入时钟fck 标准模式>1M(配置2M) 
+     11            //则标准(fsc为通信速率):
+     12            //tck=1/fck=0.5us
+     13            //CCR=1/(2fsc*tck) = 1000000/2fsc*0.5 = 1000000/fsc
+     14            //按速率设置宏定义 配置通信速率 10Kbps 
+     15            I2C->CCRH = 0;
+     16            I2C->CCRL = 100;
+     17            I2C->TRISER = 3;//配置上升时间寄存器
+     18            I2C->CR1 |= 0X01;//开启I2C模块
+     19          }
+     20          
+     21          
+     22          /********************************************************************************************************
+     23          *  Function: Driver_I2CSend						                                                           
+     24          *  Object: 硬件I2C发送
+     25          *  输入： 从设备地址； 待发送数据的头指针； 待发数据的长； 
+     26          *  输出： 无  	                                     
+     27          *  备注:  通信中如果出现超时故障 则直接返回 避免长等待
+     28          ********************************************************************************************************/
+     29          void Driver_I2CSend(u8 Address,u8 *DataBuff,u16 DataLen)
+     30          {  	
+     31            volatile u8 temp;//防止被优化而产生警告
+     32            u16 time;
+     33            
+     34            time = 500;
+     35            while(I2C->SR3&BIT(1))//等待总线空闲	
+     36            if(!--time) 
+     37            return;
+     38          
+     39            I2C->CR2 |= 0x01;//发起始条件  
+     40            time = 500;
+     41            while((I2C->SR1&BIT(0))==0)//等待发送完毕
+     42            if(!--time) return; 
+     43            asm("nop");//短暂延时
+     44            asm("nop");
+     45            asm("nop");
+     46            temp = I2C->SR1;
+     47          
+     48            I2C->DR = Address;//发送地址
+     49            time = 500;
+     50            while((I2C->SR1&BIT(1))==0)//等待ACK应答
+     51            if(!--time) return;
+     52            asm("nop");//短暂延时
+     53            asm("nop");
+     54            asm("nop");
+     55            temp = I2C->SR1;
+     56            temp = I2C->SR3;//清ADDR标志
+     57          
+     58            //发送数据
+     59            for(;DataLen>0;DataLen--,DataBuff++)
+     60            {
+     61              time = 500;
+     62              while(!(I2C->SR1&BIT(7)))//等待寄存器为空
+     63              if(!--time)return;
+     64              I2C->DR = *DataBuff;
+     65              time = 500;
+     66              while(!(I2C->SR1&BIT(2)))//等待发送完毕
+     67              if(!--time) return;
+     68              asm("nop");
+     69              asm("nop");
+     70              asm("nop");
+     71            }
+     72          
+     73            //发停止条件,关闭通信
+     74            //清BTF位
+     75            temp = I2C->SR1;
+     76            temp = I2C->DR;
+     77            I2C->CR2 |= BIT(1);//发停止 
+     78          }
+     79          
+     80          
+     81          /********************************************************************************************************
+     82          *  Function: Driver_I2CRecv						                                                           
+     83          *  Object: 硬件I2C接收 
+     84          *  输入： 从设备地址；待接收数据的头指针；待接收数据的长；
+     85          *  输出： 无 	                                     
+     86          *  备注:  通信中如果出现超时故障 则直接返回 避免长等待
+     87          ********************************************************************************************************/
+     88          void Driver_I2CRecv(u8 Address,u8 *DataBuff,u16 DataLen)
+     89          {  	
+     90            volatile u8 temp;//防止被优化而产生警告
+     91            u16 time;
+     92            
+     93            time = 500;
+     94            while(I2C->SR3&BIT(1))//等待总线空闲
+     95            if(!--time)return;
+     96          
+     97            I2C->CR2 |= BIT(0);//发起始条件
+     98            time = 500;
+     99            while(!(I2C->SR1&BIT(0)))//等待发送完毕
+    100            if(!--time)return;
+    101            asm("nop");
+    102            asm("nop");
+    103            asm("nop");
+    104            temp = I2C->SR1;
+    105          
+    106            I2C->DR = Address;//发从地址
+    107            time = 500;
+    108            while(!(I2C->SR1&BIT(1)))//等待ACK应答
+    109            if(!--time)return;
+    110            asm("nop");
+    111            asm("nop");
+    112            asm("nop");
+    113            temp = I2C->SR1;
+    114            temp = I2C->SR3;//清ADDR标志
+    115          
+    116            //接收数据,读DataLen-1个数
+    117            //使能ACK应答
+    118            I2C->CR2 |= BIT(2);
+    119            for(;DataLen>1;DataLen--,DataBuff++)
+    120            {
+    121              time = 500;
+    122              while(!(I2C->SR1&BIT(6)))//等待寄存器为满
+    123              if(!--time)return;
+    124              *DataBuff = I2C->DR;
+    125            }
+    126            I2C->CR2 &= ~BIT(2);//关闭ACK应答
+    127            //发停止条件,关闭通信
+    128            //清BTF位
+    129            temp = I2C->SR1;
+    130            temp = I2C->DR;
+    131            //发停止
+    132            I2C->CR2 |= BIT(1);
+    133            asm("nop");
+    134            asm("nop");
+    135            asm("nop");
+    136          
+    137            //读最后一个数
+    138            time = 500;
+    139            while(!(I2C->SR1&BIT(6)))
+    140            if(!--time)
+    141            return;
+    142            *DataBuff = I2C->DR;  		
+    143          }
+    144          
+    145          
+    146          
+    147          
+    148          
+    149          
+    150          
+    151          
+    152          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     162  Driver_I2CRecv
+     145  Driver_I2CSend
+      29  I2C_Init
+
+ 
+ 336 bytes in section .near_func.text
+ 
+ 336 bytes of CODE memory
+
+Errors: none
+Warnings: none

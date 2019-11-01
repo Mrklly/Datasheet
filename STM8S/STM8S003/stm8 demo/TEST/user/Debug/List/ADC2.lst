@@ -1,0 +1,83 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:35
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\ADC2.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW48B4.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\ADC2.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\ADC2.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\ADC2.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\ADC2.c
+      1          #include "stm8s.h"
+      2          #include "delay.h"
+      3          #include "ADC2.h"
+      4          
+      5          
+      6          void ADC2_Init(void)
+      7          {
+      8            ADC2->CR1 |= 0x01;//从睡眠模式唤醒
+      9            ADC2->CR2 &= 0xF7; // A/D结果数据左对齐
+     10            ADC2->CR1 = 0x60; // ADC时钟=主时钟/12=1.333MHZ;ADC转换模式=单次;禁止ADC转换
+     11            ADC2->TDRH = 0XFF;//禁止施密特触发器
+     12            ADC2->TDRL = 0XFF;
+     13          }
+     14          
+     15          float ADC2_ReadOnce(u8 chx)
+     16          {
+     17            u8 val_h=0,val_l=0,i=0;
+     18            u16 val=0;
+     19            float volate=0;
+     20            
+     21            ADC2->CSR = chx;//选择通道
+     22            ADC2->CR1 |= 0x01; // CR1寄存器的最低位置1，使能ADC转换
+     23            for(i=0;i<100;i++);// 延时一段时间，保证ADC模块的上电完成
+     24            ADC2->CR1 |= 0x01; // 将CR1寄存器的最低位置1
+     25            while(!(ADC2->CSR & 0x80)); // 等待ADC结束
+     26            val_h =(u8)ADC2->DRH; // 读出ADC结果的高8位
+     27            val_l =(u8)ADC2->DRL; // 读出ADC结果的低8位
+     28            val=(val_h<<2)+val_l;//合并值
+     29            volate=3.3f*val/1024;//计算出电压值
+     30            return volate;
+     31          }
+     32          
+     33          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      21  ADC2_Init
+      84  ADC2_ReadOnce
+
+ 
+ 105 bytes in section .near_func.text
+ 
+ 105 bytes of CODE memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,126 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:37
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\uart.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW50E4.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\uart.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\uart.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\uart.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\uart.c
+      1          #include "stm8s.h"
+      2          #include "uart.h"
+      3          #include "stdio.h"
+      4          
+      5          /**************************
+      6          
+      7          UART1_RX->PA4;;;UART1_TX->PA5
+      8          
+      9          ***************************/
+     10          
+     11          void UART1_INIT(void)
+     12          {
+     13            UART1->CR2=0X00;//使能UART1
+     14            UART1->CR1=0x00; //关闭UART，设置数据位8位，禁止奇偶效验，禁止中断
+     15            UART1->CR3=0x00; //一位停止位，默认值
+     16            UART1->BRR2=0x0b; //设置波特率为115200,16MHZ,要先写BRR2。
+     17            UART1->BRR1=0x08;
+     18            UART1->CR2|=0X2C;//使能串口接收发送
+     19          }
+     20          
+     21          void UART1_SendData(u8 ch)
+     22          {
+     23            while((UART1->SR & 0x80)==0x00);
+     24            UART1->DR=ch;
+     25          } 
+     26          
+     27          void Uart1SendDatas(u8 *Dat,u8 Len)
+     28          {
+     29             while(Len--)
+     30            {
+     31               UART1_SendData(*Dat++);
+     32             }
+     33          }
+     34          
+     35          void UART1_SendString(u8 *str)
+     36          { 
+     37            while(*str!= '\0')//判断字符串是否发送完毕
+     38            {
+     39              UART1_SendData(*str);//发送单个字符
+     40              str++;//字符地址加1，指向先下一符
+     41            }
+     42          }
+     43          
+     44          /***********************************************
+     45           * 函数名：fputc
+     46           * 描述  ：重定向c库函数printf到USART1
+     47           * 输入  ：无
+     48           * 输出  ：无
+     49           * 调用  ：由printf调用
+     50           ***********************************************/
+     51          int fputc(int ch, FILE *f)
+     52          {  
+     53           /*将Printf内容发往串口*/ 
+     54            UART1->DR=(unsigned char)ch;
+     55            while (!(UART1->SR & 0x80));
+     56            return (ch);
+     57          }
+     58          
+     59          #pragma vector=0x14
+     60          __interrupt void UART1_RX_IRQHandler(void)
+     61          { 
+     62            u8 USART1_RX_BUF; 
+     63            while (!(UART1->SR & 0x20));
+     64            USART1_RX_BUF=(u8)UART1->DR;
+     65            
+     66            printf("data=%d\r\n",USART1_RX_BUF);
+     67          }
+     68          
+     69          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?_0
+      29  UART1_INIT
+      38  UART1_RX_IRQHandler
+       9  UART1_SendData
+      11  UART1_SendString
+      19  Uart1SendDatas
+      10  fputc
+
+ 
+  10 bytes in section .near.rodata
+ 116 bytes in section .near_func.text
+ 
+ 116 bytes of CODE  memory
+  10 bytes of CONST memory
+
+Errors: none
+Warnings: none

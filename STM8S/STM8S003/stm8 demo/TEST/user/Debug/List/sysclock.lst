@@ -1,0 +1,128 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             23/Mar/2016  08:50:46 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\drive\sysclock.c                               #
+#    Command line =  "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\drive\sysclock.c" -e -Ol --no_cse --no_unroll  #
+#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
+#                    --debug --code_model small --data_model medium -o        #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\Debug\Obj\" --dlib_config "C:\Program     #
+#                    Files (x86)\IAR Systems\Embedded Workbench               #
+#                    6.5\stm8\LIB\dlstm8smn.h" -lcN                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\Debug\List\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\lib\inc\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\lib\src\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\user\" -I                              #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\drive\" --vregs 16                     #
+#    List file    =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\user\Debug\List\sysclock.lst                   #
+#    Object file  =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\user\Debug\Obj\sysclock.o                      #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\Users\Administrator\Desktop\stm8 demo\TEST\drive\sysclock.c
+      1          #include "sysclock.h"
+      2          static void HSE_ClockStartUpConfiguration(HSE_Clock_TypeDef HSE_Clock,HSE_ClockStartUpTime_TypeDef HSE_ClockStartUpTime);
+      3          /* 自定义新类型 */
+      4          
+      5          /* 自定义宏 */
+      6          #define DEBUG
+      7          /*******************************************************************************
+      8           * 名称: HSE_ClockStartUpConfiguration
+      9           * 功能: 时钟的选择，可以实现外部的时钟切换
+     10           * 形参: HSE_Clock 外部时钟类型的选择
+     11                   HSE_ClockStartUpTime 外部时钟起振稳定时间
+     12           * 返回: 无
+     13           * 说明: 如果外部时钟是大于16MHzflash需要插入一个等待周期
+     14                   小于或者等于16MHz则不需要
+     15                   这些设置写进flash,运行一次即可,在调试的时候运行即可
+     16                         
+     17           ******************************************************************************/
+     18          static void HSE_ClockStartUpConfiguration(HSE_Clock_TypeDef HSE_Clock,HSE_ClockStartUpTime_TypeDef HSE_ClockStartUpTime)
+     19          {
+     20            FLASH_Unlock(FLASH_MEMTYPE_DATA);/*要对选项字节写操作，必须要先解锁FLASH*/
+     21            while(!(FLASH->IAPSR & FLASH_IAPSR_DUL));/*等待解锁完毕*/
+     22           /*如果外部时钟是大于16MHz或者小于等于24MHz,flash需要插入一个等待周期，小于或者等于16MHz则不需要*/
+     23            if(HSE_Clock==HSE_24MHz)   
+     24            FLASH_ProgramOptionByte(FLASH_WAIT_STATES_ADDRESS,HSE_Clock);
+     25            FLASH_ProgramOptionByte(HSE_CLOCK_STARTUP_ADDRESS,HSE_ClockStartUpTime);
+     26            /*外部时钟启动稳定周期*/
+     27            FLASH_Lock(FLASH_MEMTYPE_DATA);/*操作完要加锁*/
+     28              
+     29          }
+     30          /*******************************************************************************
+     31           * 名称: DefaultSystemClockForHSI
+     32           * 功能: 恢复默认HSI功能的设置
+     33           * 形参: 无     
+     34           * 返回: 无
+     35           * 说明: 这些设置写进flash,运行一次即可,在调试的时候运行即可
+     36           ******************************************************************************/
+     37          void DefaultSystemClockForHSI(void)
+     38          {
+     39            FLASH_Unlock(FLASH_MEMTYPE_DATA);/*要对选项字节写操作，必须要先解锁FLASH*/
+     40            while(!(FLASH->IAPSR & FLASH_IAPSR_DUL));/*等待解锁完毕*/
+     41            FLASH_EraseOptionByte(FLASH_WAIT_STATES_ADDRESS);/*恢复HSI时钟*/
+     42            FLASH_EraseOptionByte(HSE_CLOCK_STARTUP_ADDRESS);
+     43            FLASH_Lock(FLASH_MEMTYPE_DATA);/*操作完要加锁*/
+     44          }
+     45          
+     46          
+     47          /*******************************************************************************
+     48           * 名称: Sysclock_Init
+     49           * 功能: 设置系统时钟频率
+     50           * 形参: 无
+     51           * 返回: 无
+     52           * 说明: 时钟选择
+     53                   如果选择外部24MHz主时钟的，外部不是24M的话
+     54                   把#define HSE_24M  HSE_VALUE注释掉即可,
+     55                   如果不需要切换到外部时钟，把#define __HSE_VALUE  HSE_VALUE
+     56                   注释掉即可
+     57           ******************************************************************************/
+     58          void SystemClock_Init(SystemClock_TypeDef sysclk)
+     59          {
+     60          
+     61             if(sysclk==HSE_Clock)/*选用外部时钟*/
+     62             {
+     63               #ifdef DEBUG
+     64               HSE_ClockStartUpConfiguration(HSE_24MHz,HSECNT_8CLK);
+     65               #endif
+     66               while (!CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO, CLK_SOURCE_HSE, DISABLE,\
+     67                      CLK_CURRENTCLOCKSTATE_DISABLE));
+     68               /*切换到外部时钟,并等待时钟却换成功*/
+     69             }
+     70             else 
+     71             {
+     72               #ifdef DEBUG
+     73               DefaultSystemClockForHSI();
+     74               #endif
+     75               CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+     76             }
+     77          
+     78          }
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      27  DefaultSystemClockForHSI
+      48  HSE_ClockStartUpConfiguration
+      40  SystemClock_Init
+
+ 
+ 115 bytes in section .near_func.text
+ 
+ 115 bytes of CODE memory
+
+Errors: none
+Warnings: none

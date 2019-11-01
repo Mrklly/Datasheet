@@ -1,0 +1,66 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\PWM.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4BE8.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\PWM.c" -e
+#        -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\PWM.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\PWM.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\PWM.c
+      1          #include "stm8s.h"
+      2          #include "PWM.h"
+      3          
+      4          
+      5          void TIM2PWM_Init(void)
+      6          {
+      7            TIM2->CCMR2 |= 0x70;// OC2M：输出比较2模式,为PWM模式2，
+      8                                // 向上计数时，若计数器小于比较值，为无效电平即当计数器在0到比较值时，输出为1，否则为0
+      9            TIM2->CCER1 |= 0x10;// CC2E = 1，开启输出引脚  
+     10            TIM2->CCER1 &= 0xDF;// CC2P = 0，高电平为有效电平;
+     11            TIM2->ARRH = 0;
+     12            TIM2->ARRL = 0xC8; //200,即pwm的分辨率为200；   初始化自动装载寄存器，决定PWM方波的频率，Fpwm=4000000/200=20KHZ                         
+     13            TIM2->CCR2H = 0; //初始化比较寄存器，决定PWM方波的占空比
+     14            TIM2->CCR2L = 0;                             
+     15            TIM2->PSCR = 2; // 初始化时钟分频器为4，即计数器的时钟频率为Fmaster=16MHZ,CK_CNT = 4M,计数器的时钟频率fCK_CNT等于fCK_PSC/2^(PSC[3:0])
+     16            TIM2->CR1 |= 0x01;// 启动计数
+     17          }
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      41  TIM2PWM_Init
+
+ 
+ 41 bytes in section .near_func.text
+ 
+ 41 bytes of CODE memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,72 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:37
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM2.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW5016.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM2.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\TIM2.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\TIM2.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM2.c
+      1          #include "stm8s.h"
+      2          #include "TIM2.h"
+      3          #include "led.h"
+      4          
+      5          void TIM2_Init(void)
+      6          {
+      7            TIM2->PSCR = 0x0A; //系统时钟经预分频f=16M/1024=15.625k,0A=10,2^10=1024;
+      8            TIM2->ARRH = 0x1E; // 1/15.625k * 7813 = 500ms
+      9            TIM2->ARRL = 0x85; //1E84=7813
+     10            TIM2->IER |= 0x01; //运行更新中断
+     11            TIM2->CR1 |= 0x01; //使能计数器
+     12          }
+     13          
+     14          
+     15          #pragma vector=0xF       //13+2
+     16          __interrupt void TIM2_UPD_OVF_BRK_IRQHandler(void)//溢出中断，中文开发指南75页
+     17          {
+     18            TIM2->SR1 = 0; //清除中断标记
+     19            led_not;
+     20          }
+     21          
+     22          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      21  TIM2_Init
+      13  TIM2_UPD_OVF_BRK_IRQHandler
+
+ 
+ 34 bytes in section .near_func.text
+ 
+ 34 bytes of CODE memory
+
+Errors: none
+Warnings: none

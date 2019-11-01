@@ -1,0 +1,104 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\delay.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4992.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\delay.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\delay.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\delay.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\delay.c
+      1          #include "delay.h"
+      2          
+      3          volatile u8 fac_us=0; //us延时倍乘数  
+      4          //延时函数初始化
+      5          //为确保准确度,请保证时钟频率最好为4的倍数,最低8Mhz
+      6          //clk:时钟频率(24/16/12/8等) 
+      7          void delay_init(u8 clk)
+      8          {
+      9            if(clk>16)fac_us=(16-4)/4;//24Mhz时,stm8大概19个周期为1us
+     10            else if(clk>4)fac_us=(clk-4)/4; 
+     11            else fac_us=1;
+     12          }
+     13          //延时nus
+     14          //延时时间=(fac_us*4+4)*nus*(T)
+     15          //其中,T为CPU运行频率(Mhz)的倒数,单位为us.
+     16          //准确度:
+     17          //92%  @24Mhz
+     18          //98%  @16Mhz
+     19          //98%  @12Mhz
+     20          //86%  @8Mhz
+     21          void delay_us(u16 nus)
+     22          {  
+     23            __asm(
+     24            "PUSH A          \n"  //1T,压栈
+     25            "DELAY_XUS:      \n"   
+     26            "LD A,fac_us     \n"   //1T,fac_us加载到累加器A
+     27            "DELAY_US_1:     \n"  
+     28            "NOP             \n"  //1T,nop延时
+     29            "DEC A           \n"  //1T,A--
+     30            "JRNE DELAY_US_1 \n"   //不等于0,则跳转(2T)到DELAY_US_1继续执行,若等于0,则不跳转(1T).
+     31            "NOP             \n"  //1T,nop延时
+     32            "DECW X          \n"  //1T,x--
+     33            "JRNE DELAY_XUS  \n"    //不等于0,则跳转(2T)到DELAY_XUS继续执行,若等于0,则不跳转(1T).
+     34            "POP A           \n"  //1T,出栈
+     35            ); 
+     36          } 
+     37          //延时nms  
+     38          //为保证准确度,nms不要大于16640.
+     39          void delay_ms(u32 nms)
+     40          {
+     41            u8 t;
+     42            if(nms>65)
+     43            {
+     44              t=nms/65;
+     45              while(t--)delay_us(65000);
+     46              nms=nms%65;
+     47            }
+     48            delay_us(nms*1000);
+     49          }
+     50          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      34  delay_init
+      81  delay_ms
+      14  delay_us
+       1  fac_us
+
+ 
+ 129 bytes in section .near_func.text
+   1 byte  in section .tiny.bss
+ 
+ 129 bytes of CODE memory
+   1 byte  of DATA memory
+
+Errors: none
+Warnings: none

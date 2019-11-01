@@ -1,0 +1,79 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\main.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4BD8.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\main.c" -e
+#        -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\main.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\main.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\main.c
+      1          /*******************************************************************************
+      2          芯片型号：STM32S207R8T6
+      3          作者：孤心寒
+      4          联系方式：QQ：982166720
+      5          测试说明：所有外设已经都测试成功（I2C,SPI未测试）
+      6          *******************************************************************************/
+      7          #include "stm8s.h"
+      8          #include "delay.h"
+      9          #include "led.h"
+     10          #include "exit.h"
+     11          #include "uart.h"
+     12          #include "uart3.h"
+     13          
+     14          int main(void)
+     15          { 
+     16            CLK->CKDIVR = 0x00;//使用内部时钟，16MHZ
+     17            delay_init(16);
+     18            UART1_INIT();
+     19            UART3_INIT();
+     20            LED_Init();
+     21            INTEN; //打开全局中断
+     22            
+     23            
+     24            while(1)
+     25            {
+     26              led_not;
+     27              delay_ms(500);
+     28            }
+     29          }
+     30          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      40  main
+
+ 
+ 40 bytes in section .near_func.text
+ 
+ 40 bytes of CODE memory
+
+Errors: none
+Warnings: none

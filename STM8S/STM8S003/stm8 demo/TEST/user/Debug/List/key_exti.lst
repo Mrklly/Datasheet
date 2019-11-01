@@ -1,0 +1,69 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             22/Mar/2016  14:46:01 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\drive\key_exti.c                               #
+#    Command line =  "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\drive\key_exti.c" -e -Ol --no_cse --no_unroll  #
+#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
+#                    --debug --code_model small --data_model medium -o        #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\Debug\Obj\" --dlib_config "C:\Program     #
+#                    Files (x86)\IAR Systems\Embedded Workbench               #
+#                    6.5\stm8\LIB\dlstm8smn.h" -lcN                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\Debug\List\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\lib\inc\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\lib\src\" -I                           #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\user\" -I                              #
+#                    "C:\Users\Administrator\Desktop\stm8                     #
+#                    demo\TEST\user\..\drive\" --vregs 16                     #
+#    List file    =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\user\Debug\List\key_exti.lst                   #
+#    Object file  =  C:\Users\Administrator\Desktop\stm8                      #
+#                    demo\TEST\user\Debug\Obj\key_exti.o                      #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\Users\Administrator\Desktop\stm8 demo\TEST\drive\key_exti.c
+      1          /******************** (C) COPYRIGHT 2012 青风电子 ********************
+      2           * 文件名  ：main
+      3           * 描述    ：         
+      4           * 实验平台：青风stm8发板
+      5           * 描述    ：按键中断
+      6           * 作者    ：青风
+      7           * 店铺    ：qfv5.taobao.com
+      8            硬件：key1-- pI0     key2 --pE4       key3--pE3
+      9          **********************************************************************/
+     10          #include "key_exti.h"
+     11          #include "stm8s_gpio.h"
+     12          #include "stm8s_exti.h"
+     13          
+     14          void EXIT_KEY_Init(void)
+     15          {
+     16             GPIO_Init(KEY1_PORT,KEY1_PIN,GPIO_MODE_IN_PU_IT );//定义key的管脚的模式
+     17             GPIO_Init(KEY2_PORT,KEY2_PIN,GPIO_MODE_IN_PU_IT );
+     18             GPIO_Init(KEY3_PORT,KEY3_PIN,GPIO_MODE_IN_PU_IT );
+     19             EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOE, EXTI_SENSITIVITY_FALL_ONLY);
+     20          }
+     21          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      45  EXIT_KEY_Init
+
+ 
+ 45 bytes in section .near_func.text
+ 
+ 45 bytes of CODE memory
+
+Errors: none
+Warnings: none

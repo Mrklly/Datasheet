@@ -1,0 +1,70 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:37
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM1.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4F5A.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM1.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\TIM1.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\TIM1.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\TIM1.c
+      1          #include "stm8s.h"
+      2          #include "TIM1.h"
+      3          #include "led.h"
+      4          
+      5          void TIM1_Init(void)
+      6          {
+      7            TIM1->PSCRH = 0x3E; // 系统时钟经预分频f=fck/(PSCR+1)
+      8            TIM1->PSCRL = 0x7F; // PSCR=0x3E7F， f=16M/(0x3E7F+1)=1000Hz,每个计数周期1ms
+      9            TIM1->ARRH = 0x01; // 自动重载寄存器ARR=0x01F4=500
+     10            TIM1->ARRL = 0xF4; // 每记数500次产生一次中断，即500ms
+     11            TIM1->IER |= 0x01; // 允许更新中断
+     12            TIM1->CR1 |= 0x01; // 计数器使能，开始计数
+     13          }
+     14          
+     15          #pragma vector=0xD     //11+2
+     16          __interrupt void TIM1_UPD_OVF_TRG_BRK_IRQHandler(void)//溢出中断，中文开发指南75页
+     17          {
+     18            TIM1->SR1 = 0; //清除中断标记
+     19            led_not;
+     20          }
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      25  TIM1_Init
+      13  TIM1_UPD_OVF_TRG_BRK_IRQHandler
+
+ 
+ 38 bytes in section .near_func.text
+ 
+ 38 bytes of CODE memory
+
+Errors: none
+Warnings: none

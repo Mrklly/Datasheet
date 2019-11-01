@@ -1,0 +1,72 @@
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[TraceHelper]
+Enabled=0
+ShowSource=1
+[DebugChecksum]
+Checksum=662313457
+[DisAssemblyWindow]
+NumStates=_ 1
+State 1=_ 1
+[InstructionProfiling]
+Enabled=_ 0
+[CodeCoverage]
+Enabled=_ 0
+[StackPlugin]
+Enabled=1
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnHow=0
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[Breakpoints]
+Count=0
+[Aliases]
+A0=_ "E:\青风系列开发板\stm8开发板光盘\工程代码\实验代码\实验四：按键中断\drive\led.c" ""
+A1=_ "E:\青风系列开发板\stm8开发板光盘\工程代码\实验代码\实验四：按键中断\user\main.c" "G:\青风系列开发板\stm8开发板光盘\工程代码\实验代码\实验四：按键中断\user\main.c"
+A2=_ "G:\青风系列开发板\stm8开发板光盘\工程代码\实验代码\实验四：按键中断\drive\key_exti.c" "E:\百度云下载\青风电子\实验四：按键中断\user\main.c"
+Count=3
+SuppressDialog=1

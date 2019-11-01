@@ -1,0 +1,136 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:36
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\SPI.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4CA5.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\SPI.c" -e
+#        -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\SPI.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\SPI.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\SPI.c
+      1          #include "stm8s.h"
+      2          #include "SPI.h"
+      3          #include "delay.h"
+      4          
+      5          
+      6          void SPI_Init(void)
+      7          {
+      8            SPI->CR1 = 0x00;//控制寄存器CR1先清零   
+      9            SPI->CR1 |= 0x18;//配置通信波特率1Mbps(主频为16MHZ)16分频		
+     10            //配置时钟的相位与极性
+     11            SPI->CR1 |= 0x00;//空闲状态时，SCK保持低电平				    
+     12            SPI->CR1 |= 0x00;//数据采样从第一个时钟边沿开始
+     13            //定义帧格式
+     14            SPI->CR1 |= 0x00;//通信时，串行移位，高位在前，低位在后 （MSB）    
+     15            SPI->CR2 |= BIT(1);//NSS引脚软件管理 
+     16            SPI->CR2 |= BIT(0);//主设备选择
+     17            SPI->CR1 |= BIT(2);//主设备选择
+     18            SPI_IO_Init();
+     19            SPI->CR1 |= BIT(6);//使能时钟
+     20          }
+     21          
+     22          void SPI_IO_Init(void)//PC5->SPI_SCK|||PC6->SPI_MOSI|||PC7->SPI_MISO
+     23          {
+     24            GPIOC->DDR |= BIT(5);//PC5 输出模式
+     25            GPIOC->CR1 |= BIT(5);//PC5 推挽输出
+     26            GPIOC->CR2 |= BIT(5);//PC5输出速率10MHZ
+     27            GPIOC->DDR |= BIT(6);//PC6 输出模式
+     28            GPIOC->CR1 |= BIT(6);//PC6 推挽输出
+     29            GPIOC->CR2 |= BIT(6);//PC6输出速率10MHZ
+     30            GPIOC->CR1 |= BIT(7);
+     31          }
+     32          
+     33          /***************************************************************************
+     34          *  Function: Driver_SPISend			  								                       
+     35          *  Object:  SPI发送数据													  					             
+     36          *  输入： &DataBuff 发送数据缓存的头指针；DataLen 发送数据的个数；       
+     37          *  输出： 无				                                 			                 
+     38          *  备注： 主模式 四线连接 硬件SPI sck	mosi misi 							                      
+     39          ***************************************************************************/
+     40          void SPISend(u8 *DataBuff,u16 DataLen)
+     41          {
+     42            volatile u8 temp;//防止被优化而产生警告
+     43            
+     44            for(;DataLen>0;DataBuff++,DataLen--)
+     45            {
+     46              while(!(SPI->SR&BIT(1)));//等待发送
+     47              SPI->DR = *DataBuff;//发送数据
+     48            }
+     49            temp = SPI->DR;
+     50            while(SPI->SR&BIT(7));//等待总线空闲 
+     51          }
+     52          
+     53          /***************************************************************************
+     54          *  Function: Driver_SPIReceive			  								                   
+     55          *  Object:  SPI接收数据													  					             
+     56          *  输入： &DataBuff 接收数据缓存的头指针；DataLen 接收数据的个数；        
+     57          *  输出： 无				                                 			                 
+     58          *  备注： 主模式 四线连接 硬件SPI sck	mosi misi                     
+     59          ***************************************************************************/
+     60          void SPIReceive(u8 *DataBuff,u16 DataLen)
+     61          {
+     62            for(;DataLen>0;DataBuff++,DataLen--)
+     63            {
+     64              while(!(SPI->SR&BIT(0)));//等待接收
+     65              *DataBuff = SPI->DR;//接收数据
+     66            }
+     67            while(SPI->SR&BIT(7));//等待总线空闲 
+     68          }
+     69          
+     70          
+     71          
+     72          
+     73          
+     74          
+     75          
+     76          
+     77          
+     78          
+     79          
+     80          
+     81          
+     82          
+     83          
+     84          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      32  SPIReceive
+      41  SPISend
+      29  SPI_IO_Init
+      47  SPI_Init
+
+ 
+ 149 bytes in section .near_func.text
+ 
+ 149 bytes of CODE memory
+
+Errors: none
+Warnings: none

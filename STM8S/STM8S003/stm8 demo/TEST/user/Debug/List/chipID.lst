@@ -1,0 +1,74 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V3.10.1.201 for STM8                 08/Oct/2019  17:55:35
+# Copyright 2010-2017 IAR Systems AB.
+# Standalone license - IAR Embedded Workbench for STMicroelectronics STM8
+#
+#    Source file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\chipID.c
+#    Command line =  
+#        -f C:\Users\John\AppData\Local\Temp\EW4981.tmp
+#        ("E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\chipID.c"
+#        -e -Ol --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_cross_call --debug --code_model small --data_model small -o
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\Obj"
+#        --dlib_config "D:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\stm8\LIB\dlstm8ssf.h" -lcN
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\Debug\List"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\inc\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\lib\src\" -I
+#        "E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\user\..\user\"
+#        -I "E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\..\drive\" --vregs 16)
+#    Locale       =  Chinese (Simplified)_CHN.936
+#    List file    =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\List\chipID.lst
+#    Object file  =  
+#        E:\workspace\DataSheet\STM8S\STM8S003\stm8
+#        demo\TEST\user\Debug\Obj\chipID.o
+#
+###############################################################################
+
+E:\workspace\DataSheet\STM8S\STM8S003\stm8 demo\TEST\drive\chipID.c
+      1          #include "stm8s.h"
+      2          #include "chipID.h"
+      3          
+      4          u8 ChipID[12];
+      5          
+      6          void GetID(void)
+      7          {
+      8            ChipID[0] = *(volatile u8 *)(0X48CD); 
+      9            ChipID[1] = *(volatile u8 *)(0X48CE); 
+     10            ChipID[2] = *(volatile u8 *)(0X48CF);
+     11            ChipID[3] = *(volatile u8 *)(0X48D0); 
+     12            ChipID[4] = *(volatile u8 *)(0X48D1); 
+     13            ChipID[5] = *(volatile u8 *)(0X48D2);
+     14            ChipID[6] = *(volatile u8 *)(0X48D3); 
+     15            ChipID[7] = *(volatile u8 *)(0X48D4); 
+     16            ChipID[8] = *(volatile u8 *)(0X48D5);
+     17            ChipID[9] = *(volatile u8 *)(0X48D6); 
+     18            ChipID[10] = *(volatile u8 *)(0X48D7); 
+     19            ChipID[11] = *(volatile u8 *)(0X48D8);
+     20          }
+     21          
+     22          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ChipID
+      61  GetID
+
+ 
+ 61 bytes in section .near_func.text
+ 12 bytes in section .tiny.bss
+ 
+ 61 bytes of CODE memory
+ 12 bytes of DATA memory
+
+Errors: none
+Warnings: none
